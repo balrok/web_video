@@ -56,3 +56,7 @@ Using flowplayer works but it has some quirks. The javascript part of the PHP-sc
 Maybe you also have a better idea for this
 
 Also added my crossdomain.xml - this is required for HLS and DASH and save you a google-search
+
+## TODO
+
+* add a small example here folder with some imgs and videos to easily check if it works
