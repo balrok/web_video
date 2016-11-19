@@ -112,9 +112,12 @@ def process_vid(name:str, path:str):
 
     
 
-
-if __name__ == "__main__":
+def run():
     SingleInstance("videotransformer")
     # first argument is folder which we will check
-
+    print("1. argument is a folder")
+    print("2. argument is a url http://..")
     main(sys.argv[1], sys.argv[2])
+
+if __name__ == "__main__":
+    run()

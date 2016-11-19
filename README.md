@@ -4,9 +4,10 @@ Tool to encode videos inside a folder for the web, and small example how to disp
 
 ## Installation
 
-You need python 2 and python 3.5
+You need python 2.7 and python 3.5
 `pip install --user -r requirements.txt`
 You need to install https://www.bento4.com/ and add it to your PATH
+
 E.g.
 ```
 	export PATH="${PATH}:/xyz/Bento4-SDK-1-5-0-613.x86_64-unknown-linux/bin"
