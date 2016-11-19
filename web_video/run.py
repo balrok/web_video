@@ -59,26 +59,25 @@ def main(root_dir:str, callback_url:str):
 
 def process_img(name:str, path:str):
     return False
-    name_no_ext = os.path.splitext(name)[0]
+    name_no_ext, ext = os.path.splitext(name)
     file = os.path.join(path, name)
     target_folder = os.path.join(path, name_no_ext)
-    #if os.path.exists(target_folder):
-    #    print("Cannot process {} as the target folder {} already exists".format(name, target_folder))
-    #    return False
+    if os.path.exists(target_folder):
+        print("Cannot process {} as the target folder {} already exists".format(name, target_folder))
+        return False
     with TemporaryDirectory() as temp_dir:
         print("using tempdir {}".format(temp_dir))
         # convert dragon.gif    -resize 4096@>  pixel_dragon.gif
         for s in (2048, 1024, 512, 256):
-            print("convert {} -resize {size}x{size}@\\> {tmp}/{size}.jpg".format(file, size=s, tmp=temp_dir))
-            run("convert {} -resize {size}x{size}@\\> {tmp}/{size}.jpg".format(file, size=s, tmp=temp_dir), shell=True, stdout=sys.stdout)
+            print("convert {} -resize {size}x{size}\\> {tmp}/{size}.jpg".format(file, size=s, tmp=temp_dir))
+            run("convert {} -resize {size}x{size}\\> {tmp}/{size}.jpg".format(file, size=s, tmp=temp_dir), shell=True, stdout=sys.stdout)
         #run("mkdir {}".format(target_folder), shell=True, stdout=sys.stdout)
         run("mv {}/* {}".format(temp_dir, target_folder), shell=True, stdout=sys.stdout)
-        run("mv {} {}".format(file, target_folder), shell=True, stdout=sys.stdout)
+        run("mv {} {}/orig.{}".format(file, target_folder, ext), shell=True, stdout=sys.stdout)
 
 
 def process_vid(name:str, path:str):
-    name_no_ext = os.path.splitext(name)[0]
-    ext = os.path.splitext(name)[1]
+    name_no_ext, ext = os.path.splitext(name)
     file = os.path.join(path, name)
     target_folder = os.path.join(path, name_no_ext)
     if os.path.exists(target_folder):
@@ -104,20 +103,15 @@ def process_vid(name:str, path:str):
         run("mv {}/hls/* {}".format(temp_dir, target_folder), shell=True, stdout=sys.stdout)
         run("mv {}/img_* {}".format(temp_dir, target_folder), shell=True, stdout=sys.stdout)
         run("mv {}/video_* {}".format(temp_dir, target_folder), shell=True, stdout=sys.stdout)
-        run("mv {} {}/original{}".format(file, target_folder, ext), shell=True, stdout=sys.stdout)
+        run("mv {} {}/orig.{}".format(file, target_folder, ext), shell=True, stdout=sys.stdout)
         print("moved all to {}".format(target_folder))
     return True
 	
-
-
-    
-
 def run():
     SingleInstance("videotransformer")
     # first argument is folder which we will check
-    print("1. argument is a folder")
-    print("2. argument is a url http://..")
     main(sys.argv[1], sys.argv[2])
+
 
 if __name__ == "__main__":
     run()
