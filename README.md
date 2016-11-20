@@ -4,11 +4,21 @@ Tool to encode videos inside a folder for the web, and small example how to disp
 
 ## Installation
 
+Software:
+```
+python2.7 # for bento4
+python3.5 # for this script
+bento4    # for converting the videos
+ffmpeg    # bento4 depends on ffmpeg
+	- libfdk_aac # ffmpeg must be compiled with this
+		# (brew install ffmpeg --with-fdk-aac --with-libvpx --with-libvorbis)
+	- x264
+imagemagick # for converting the images
+```
 You need python 2.7 and python 3.5
-`pip install --user -r requirements.txt`
-You need to install https://www.bento4.com/ and add it to your PATH
+`pip3.5 install --user -r requirements.txt`
 
-E.g.
+When installing (bento4)[https://www.bento4.com/] add it to your PATH like this:
 ```
 	export PATH="${PATH}:/xyz/Bento4-SDK-1-5-0-613.x86_64-unknown-linux/bin"
 	export PATH="${PATH}:/xyz/Bento4-SDK-1-5-0-613.x86_64-unknown-linux/utils"

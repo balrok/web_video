@@ -1,0 +1,11 @@
+This is a simple test, 2016
+
+The info.txt is not used by this program, but I think it is a nice way to add a description for galleries.
+Maybe in the future I add a minimal php project for this.
+
+big_buck_bunny_1280x720.mp4:
+The only filename convention I have is that it ends with ".mp4" or any other popular video format.
+Also maybe no special characters - I haven't tested this.
+
+img1.jpg
+An example image
