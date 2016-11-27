@@ -30,9 +30,11 @@ def main(root_dir:str, callback:str=""):
             log.debug("checking %s", e.name)
             changed = False
             dirstart = time()
+            is_watch_dir = False
             for entry in scandir(e.path):
                 fh = BasicFile.get_instance(entry)
                 if fh:
+                    is_watch_dir = True
                     log.debug("Found a file %s with type %s", entry.name, repr(fh))
                     start = time()
                     res = fh.process()
@@ -46,15 +48,20 @@ def main(root_dir:str, callback:str=""):
                             return_code = -1
                     if time()-start > 1:
                         log.info("For %s took: %d", entry.name, int(time()-start))
-            if time()-dirstart > 1:
-                log.info("For dir %s took: %d", e.path, int(time()-dirstart))
+            if is_watch_dir:
+                if BasicFile.foldername_string(e.name) != e.name:
+                    log.warning("The Foldername is not nice for urls - fixing it")
+                    BasicFile.move_directory(e.path, os.path.join(os.path.dirname(e.path), BasicFile.foldername_string(e.name)))
 
-            if changed:
-                if len(callback) > 0:
-                    if callback.startswith("http"):
-                        urllib.request.urlopen(callback).read()
-                    else:
-                        log.error("callback must start with http: %s", callback)
+                if time()-dirstart > 1:
+                    log.info("For dir %s took: %d", e.path, int(time()-dirstart))
+
+                if changed:
+                    if len(callback) > 0:
+                        if callback.startswith("http"):
+                            urllib.request.urlopen(callback).read()
+                        else:
+                            log.error("callback must start with http: %s", callback)
     sys.exit(return_code)
 
 def configure_logging(root_dir:str):

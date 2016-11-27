@@ -81,21 +81,25 @@ class BasicFile(object):
             'name_no_ext': name_no_ext,
         }
 
+    def foldername_string(value):
+        """
+        Normalizes string, converts to lowercase, removes non-alpha characters,
+        and converts spaces to hyphens.
+        """
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode("utf-8")
+        value = re.sub('[^\w\s-]', '', value).strip().lower()
+        return re.sub('[-\s]+', '_', value)
+
+    def move_directory(old, new):
+        run("mv {old} {new}".format(old=quote(old), new=quote(new)))
+
     def getTargetFolder(self):
-        def slugify(value):
-            """
-            Normalizes string, converts to lowercase, removes non-alpha characters,
-            and converts spaces to hyphens.
-            """
-            value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode("utf-8")
-            value = re.sub('[^\w\s-]', '', value).strip().lower()
-            return re.sub('[-\s]+', '_', value)
         file = os.path.join(self.path, self.name)
         name_no_ext, ext = os.path.splitext(os.path.basename(self.getOrigFile()))
         if os.path.isdir(file):
             return file
         else:
-            return os.path.join(self.path, slugify(name_no_ext))
+            return os.path.join(self.path, BasicFile.foldername_string(name_no_ext))
 
     def getOrigFile(self):
         if os.path.isdir(os.path.join(self.path, self.name)):
