@@ -62,12 +62,6 @@ folder/another/abc/
 It will call the `callback-url 2 times` (once per album).
 
 
-## PHP script
-Using flowplayer works but it has some quirks. The javascript part of the PHP-script works a little bit around them.
-Maybe you also have a better idea for this
-
-Also added my crossdomain.xml - this is required for HLS and DASH and save you a google-search
-
-## TODO
-
-* add a small example here folder with some imgs and videos to easily check if it works
+## Example
+Look into `example_web` there is a folder `galleries` which can be converted by: `./web_video/run.py example_web/galleries`. Then you can
+`cd example_web; php -S localhost:8000` and browse to http://127.0.0.1:8000.
