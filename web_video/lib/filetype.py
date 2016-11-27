@@ -29,6 +29,9 @@ def run(*args, **kwargs):
         if time()-start > 1:
             log.info("Took %d seconds" % int(time()-start))
         if ret.returncode != 0:
+            log.error('A command returned an error code %d', ret.returncode)
+            log.error(args)
+            log.error(kwargs)
             return False
         return ret
     except (OSError, CalledProcessError) as e:
