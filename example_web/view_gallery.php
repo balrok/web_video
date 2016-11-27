@@ -8,10 +8,8 @@
             <div class="card">
 <table style="height:100%"><tr><td class="align-middle" style="padding:0">
     <?php if ($model->type == 'pic') {?>
-        <a href="<?=$baseUrl.$model->big?>" class="boxpopup">
-            <img src="<?=$baseUrl.$model->thumb?>" class="card-img img-fluid" />
-            <br/>
-            <?= $model->descr ?>
+        <a href="<?= $baseUrl . $model->getImage()?>" class="boxpopup">
+            <img src="<?=$baseUrl.$model->getImage("x512")?>" class="card-img img-fluid" />
         </a>
 <?php } else if($model->type == 'video') {?>
 
@@ -20,7 +18,6 @@
 <a href="#flowvid_<?=$id?>" class="boxpopup">
     <img src="<?=$baseUrl.$model->getImage()?>" class="card-img img-fluid" />
     <div class="after"></div>
-    <?= $model->descr ?>
 </a>
 
 <div class="mfp-hide flowvideo video-fluid" id="flowvid_<?=$id?>">
@@ -92,11 +89,7 @@ window.onload = function () {
         </div>
 <?php } ?>
 </div>
-<style>
-.gallery_elements.row > div[class*='col-'] {display: flex;flex:1 0 auto;}
-</style>
-
+<?=$gal->descr?>
 
 <br/><br/>
-<?=$model->descr?><br/>
 <?php include "view_foot.php" ?>

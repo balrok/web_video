@@ -177,6 +177,8 @@ h1 {
     width: 100%;
   }
 }
+
+.gallery_elements.row > div[class*='col-'] {display: flex;flex:1 0 auto;}
 </style>
 
 
