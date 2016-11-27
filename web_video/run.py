@@ -22,6 +22,7 @@ from lib.singleton import SingleInstance
 from lib.filetype import BasicFile
 from zenlog import log
 from zenlog import logging
+import logging.handlers
 
 def main(root_dir:str, callback:str=""):
     return_code = 0
@@ -66,7 +67,7 @@ def main(root_dir:str, callback:str=""):
 
 def configure_logging(root_dir:str):
     logger = logging.getLogger()
-    hdlr = logging.FileHandler(os.path.join(root_dir, ".web_video.log"))
+    hdlr = logging.handlers.RotatingFileHandler(os.path.join(root_dir, ".web_video.log"), maxBytes=1024*1024*10, backupCount=5)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr) 
