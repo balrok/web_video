@@ -1,5 +1,5 @@
 <?php
-include "Element.php";
+namespace balrok\web_video\web;
 
 class Gallery
 {

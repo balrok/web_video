@@ -1,6 +1,5 @@
 <?php
-include "Gallery.php";
-
+use \balrok\web_video\web\Gallery;
 
 $abs_url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s://" : "://") . $_SERVER['HTTP_HOST'].'/';
 

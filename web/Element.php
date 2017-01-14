@@ -1,4 +1,5 @@
 <?php
+namespace balrok\web_video\web;
 
 class Element
 {
