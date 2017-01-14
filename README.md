@@ -63,5 +63,9 @@ It will call the `callback-url 2 times` (once per album).
 
 
 ## Example
-Look into `example_web` there is a folder `galleries` which can be converted by: `./web_video/run.py example_web/galleries`. Then you can
-`cd example_web; php -S localhost:8000` and browse to http://127.0.0.1:8000.
+Look into `web` there is a folder `galleries` which can be converted by: `./web_video/run.py web/galleries`. Then you can
+`cd web; php -S localhost:8000` and browse to http://127.0.0.1:8000.
+
+# Composer
+
+Maybe you want to use the classes Gallery and Element in your project - so you can composer require them.
