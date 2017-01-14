@@ -12,7 +12,6 @@ class SingleInstanceException(BaseException):
 
 
 class SingleInstance:
-
     """
     If you want to prevent your script from running in parallel just instantiate SingleInstance() class. If is there another instance already running it will throw a `SingleInstanceException`.
 
@@ -29,10 +28,11 @@ class SingleInstance:
     def __init__(self, flavor_id=""):
         self.initialized = False
         basename = os.path.splitext(os.path.abspath(sys.argv[0]))[0].replace(
-            "/", "-").replace(":", "").replace("\\", "-") + '-%s' % flavor_id + '.lock'
+            "/", "-").replace(":", "").replace(
+                "\\", "-") + '-%s' % flavor_id + '.lock'
         # os.path.splitext(os.path.abspath(sys.modules['__main__'].__file__))[0].replace("/", "-").replace(":", "").replace("\\", "-") + '-%s' % flavor_id + '.lock'
-        self.lockfile = os.path.normpath(
-            tempfile.gettempdir() + '/' + basename)
+        self.lockfile = os.path.normpath(tempfile.gettempdir() + '/' +
+                                         basename)
 
         if sys.platform == 'win32':
             try:
@@ -40,8 +40,8 @@ class SingleInstance:
                 # execution was interrupted)
                 if os.path.exists(self.lockfile):
                     os.unlink(self.lockfile)
-                self.fd = os.open(
-                    self.lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+                self.fd = os.open(self.lockfile, os.O_CREAT | os.O_EXCL |
+                                  os.O_RDWR)
             except OSError:
                 type, e, tb = sys.exc_info()
                 if e.errno == 13:
@@ -72,4 +72,3 @@ class SingleInstance:
         except Exception:
             # nearly always expections happen here because os,fcntl will not exist anymore in __del__ - no idea how to avoid this
             pass
-

@@ -24,7 +24,8 @@ from zenlog import log
 from zenlog import logging
 import logging.handlers
 
-def main(root_dir:str, callback:str=""):
+
+def main(root_dir: str, callback: str=""):
     return_code = 0
     for e in scandir(root_dir):
         if e.is_dir():
@@ -36,7 +37,8 @@ def main(root_dir:str, callback:str=""):
                 fh = BasicFile.get_instance(entry)
                 if fh:
                     is_watch_dir = True
-                    log.debug("Found a file %s with type %s", entry.name, repr(fh))
+                    log.debug("Found a file %s with type %s", entry.name,
+                              repr(fh))
                     start = time()
                     res = fh.process()
                     changed = False
@@ -45,32 +47,46 @@ def main(root_dir:str, callback:str=""):
                             changed = True
                             log.info("updated {} - {}".format(entry.name, i))
                         if res[i] == fh.ERROR:
-                            log.error("ERROR: {} could not be processed - {}\n".format(entry.name, i))
+                            log.error(
+                                "ERROR: {} could not be processed - {}\n".
+                                format(entry.name, i))
                             return_code = -1
-                    if time()-start > 1:
-                        log.info("For %s took: %d", entry.name, int(time()-start))
+                    if time() - start > 1:
+                        log.info("For %s took: %d", entry.name,
+                                 int(time() - start))
             if is_watch_dir:
                 if BasicFile.foldername_string(e.name) != e.name:
-                    log.warning("The Foldername is not nice for urls - fixing it")
-                    BasicFile.move_directory(e.path, os.path.join(os.path.dirname(e.path), BasicFile.foldername_string(e.name)))
+                    log.warning(
+                        "The Foldername is not nice for urls - fixing it")
+                    BasicFile.move_directory(
+                        e.path,
+                        os.path.join(
+                            os.path.dirname(e.path),
+                            BasicFile.foldername_string(e.name)))
 
-                if time()-dirstart > 1:
-                    log.info("For dir %s took: %d", e.path, int(time()-dirstart))
+                if time() - dirstart > 1:
+                    log.info("For dir %s took: %d", e.path,
+                             int(time() - dirstart))
 
                 if changed:
                     if len(callback) > 0:
                         if callback.startswith("http"):
                             urllib.request.urlopen(callback).read()
                         else:
-                            log.error("callback must start with http: %s", callback)
+                            log.error("callback must start with http: %s",
+                                      callback)
     sys.exit(return_code)
 
-def configure_logging(root_dir:str):
+
+def configure_logging(root_dir: str):
     logger = logging.getLogger()
-    hdlr = logging.handlers.RotatingFileHandler(os.path.join(root_dir, ".web_video.log"), maxBytes=1024*1024*10, backupCount=5)
+    hdlr = logging.handlers.RotatingFileHandler(
+        os.path.join(root_dir, ".web_video.log"),
+        maxBytes=1024 * 1024 * 10,
+        backupCount=5)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr) 
+    logger.addHandler(hdlr)
     try:
         from logging.handlers import SysLogHandler
         syslog = SysLogHandler()
@@ -78,8 +94,11 @@ def configure_logging(root_dir:str):
         logger.addHandler(syslog)
     except Exception as e:
         log.warning("No syslog handler: %s", e)
-	
+
+
 lock = None
+
+
 def run_it():
     global lock
     configure_logging(sys.argv[1])
