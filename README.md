@@ -69,3 +69,11 @@ Look into `web` there is a folder `galleries` which can be converted by: `./web_
 # Composer
 
 Maybe you want to use the classes Gallery and Element in your project - so you can composer require them.
+```
+composer require balrok/web_video dev-master
+```
+And use it with
+```
+use balrok\web_video\web\Gallery;
+use balrok\web_video\web\Element;
+```

@@ -7,12 +7,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" type="text/javascript"></script>
 
 
-<script src="/flowplayer-6.0.5/flowplayer.min.js"></script>
+<script src="//releases.flowplayer.org/6.0.5/flowplayer.min.js"></script>
 <script src="/flowplayer-6.0.5/flowplayer.dashjs.min.js"></script>
-<script src="/flowplayer-6.0.5/flowplayer.hlsjs.min.js"></script>
-<script src="/flowplayer-6.0.5/flowplayer.quality-selector.min.js"></script>
-<link rel="stylesheet" href="/flowplayer-6.0.5/skin/functional.css">
-<link rel="stylesheet" href="/flowplayer-6.0.5/flowplayer.quality-selector.css">
+<script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.min.js"></script>
+<script src="//releases.flowplayer.org/vod-quality-selector/flowplayer.vod-quality-selector.js"></script>
+<link rel="stylesheet" href="//releases.flowplayer.org/6.0.5/skin/functional.css">
 
 <script>
 jQuery(function() {
