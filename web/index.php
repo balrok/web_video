@@ -16,7 +16,10 @@ if (isset($_GET['gal'])) {
         if($fileInfo->isDot()) continue;
         if($fileInfo->isDir()) {
             $g = new Gallery((string)$fileInfo, "galleries");
-            $galleries[] = $g;
+            if (empty($g->errors))
+                $galleries[] = $g;
+            else
+                die(implode("<br/>\n", $g->errors));
         }
     }
     include "view_galleries.php";

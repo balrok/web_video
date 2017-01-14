@@ -8,21 +8,22 @@ class Gallery
     public $descr = '';
     public $dir;
     public $elements = [];
+    public $errors = [];
 
     public function __construct(string $folder, string $dir)
     {
         $dir .= '/'.$folder;
         $this->folder = $folder;
         if (!file_exists($dir) || !is_dir($dir) || strpos($dir, '..') == -1) {
-            echo 'strange directory '.$dir;
-            return null;
+            $this->errors[] = 'strange directory '.$dir;
+            return;
         }
 
         $this->dir = $dir;
 
         if (!$this->readInfo()) {
-            echo "Missing info.txt file in: ".$this->dir;
-            return null;
+            $this->errors[] = "Missing info.txt file in: ".$this->dir;
+            return;
         }
         $this->readFiles();
     }
@@ -59,8 +60,12 @@ class Gallery
         sort($files);
         for ($i = 0; $i < count($files); ++$i) {
             $type = $this->is_pic($files[$i])?'pic':($this->is_video_folder($files[$i])?'video':'');
-            $this->elements[] = new Element($files[$i], $this->dir, $type);
+            $this->elements[] = $this->createNewElement($files[$i], $this->dir, $type);
         }
+    }
+
+    public function createNewElement(string $file, string $dir, string $type) {
+        return new Element($file, $dir, $type);
     }
 
     protected function isEnabled($i, $file)
