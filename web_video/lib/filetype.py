@@ -65,7 +65,7 @@ class BasicFile(object):
         return ret
 
     @staticmethod
-    def get_instance(entry: os.DirEntry) -> BasicFile:
+    def get_instance(entry):
         for f in filetypes:
             fh = f(entry)
             if fh.istype():
@@ -73,7 +73,7 @@ class BasicFile(object):
         return None
 
     ### Instance methods
-    def __init__(self, entry: os.DirEntry) -> None:
+    def __init__(self, entry) -> None:
         self.entry = entry
         self.name = entry.name
         self.path = os.path.dirname(entry.path)
