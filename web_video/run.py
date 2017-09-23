@@ -71,7 +71,11 @@ def main(root_dir: str, callback: str=""):
                 if changed:
                     if len(callback) > 0:
                         if callback.startswith("http"):
-                            urllib.request.urlopen(callback).read()
+                            log.info("Opening url %s" % callback)
+                            try:
+                                urllib.request.urlopen(callback).read()
+                            except:
+                                log.error("Error opening this url")
                         else:
                             log.error("callback must start with http: %s",
                                       callback)
