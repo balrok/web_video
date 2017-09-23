@@ -14,7 +14,6 @@ filetypes = []  # type: List[BasicFile]
 
 process_stdout = sys.stdout  # open(os.devnull, 'w')
 process_stdout = DEVNULL
-sub_run = run
 
 
 def srun(*args, **kwargs):
@@ -27,7 +26,7 @@ def srun(*args, **kwargs):
     log.info("CMD: %s" % args[0])
     start = time()
     try:
-        ret = sub_run(*args, **kwargs)
+        ret = run(*args, **kwargs)
         if time() - start > 1:
             log.info("Took %d seconds" % int(time() - start))
         if ret.returncode != 0:
@@ -52,7 +51,7 @@ class BasicFile(object):
     @staticmethod
     def cmd_exists(program: str) -> bool:
         v = srun("which {}".format(program), stdout=PIPE)
-        if v.stdout == b"":
+        if not v or v.stdout == b"":
             log.error("Program {} does not exist".format(program))
             return False
         return True
