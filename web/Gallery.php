@@ -9,6 +9,8 @@ class Gallery
     public $dir;
     public $elements = [];
     public $errors = [];
+    // will search for any of these filenames - if it finds one it stops
+    public $info_filenames = ["info.txt", "info"];
 
     public function __construct(string $folder, string $dir)
     {
@@ -22,7 +24,7 @@ class Gallery
         $this->dir = $dir;
 
         if (!$this->readInfo()) {
-            $this->errors[] = "Missing info.txt file in: ".$this->dir;
+            $this->errors[] = "Missing info (any of ".implode(", ", $this->info_filenames)." file in: ".$this->dir;
             return;
         }
         $this->readFiles();
@@ -30,22 +32,23 @@ class Gallery
 
     public function readInfo()
     {
-        if (file_exists($this->dir.'/info.txt')) {
-            $info = @fopen($this->dir.'/info.txt', "r");
-            if ($info) {
-                $content = '';
-                while (!feof($info)) {
-                    $content .= fgets($info, 4096);
+        foreach ($this->info_filenames as $name) {
+            if (file_exists($this->dir.'/'.$name)) {
+                $info = @fopen($this->dir.'/'.$name, "r");
+                if ($info) {
+                    $content = '';
+                    while (!feof($info)) {
+                        $content .= fgets($info, 4096);
+                    }
+                    $rows = explode("\n", $content);
                 }
-                $rows = explode("\n", $content);
+                $this->title = $rows[0];
+                unset($rows[0]);
+                $this->descr = implode("<br/>\n", $rows);
+                return true;
             }
-            $this->title = $rows[0];
-            unset($rows[0]);
-            $this->descr = implode("<br/>\n", $rows);
-        } else {
-            return false;
         }
-        return true;
+        return false;
     }
 
     public function readFiles()
