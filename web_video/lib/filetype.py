@@ -326,7 +326,7 @@ class VideoFile(BasicFile):
                 b"--enable-libvpx",  # video for webm
                 b"--enable-libvorbis",  # audio for webm
             ]
-            opts_not_exist = [o for o in opts if o not in v.stdout]
+            opts_not_exist = [o.decode("utf-8") for o in opts if o not in v.stdout]
             if len(opts_not_exist) > 0:
                 log.error("ffmpeg not compiled with {}".format(" ".join(
                     opts_not_exist)))

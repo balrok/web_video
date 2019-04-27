@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.5
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # check dir for files older 60s so we are sure to have complete transfered files
@@ -107,9 +107,9 @@ def run_it():
     global lock
     configure_logging(sys.argv[1])
     lock = SingleInstance("videotransformer")
-    if not BasicFile.test_requirements():
-        log.error("Some program requirements not met")
-        sys.exit(-1)
+    #if not BasicFile.test_requirements():
+    #    log.error("Some program requirements not met")
+    #    sys.exit(-1)
     # first argument is folder which we will check
     # second argument a callback-url
     main(*sys.argv[1:])
