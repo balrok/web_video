@@ -179,12 +179,12 @@ class ImageFile(BasicFile):
             return self.NO_CHANGE
         with TemporaryDirectory() as temp_dir:
             for s in self.sizes:
-                srun("convert {o} -resize {size}x{size}\\> {tmp}/{size}.jpg".
+                srun("convert {o} -auto-orient -resize {size}x{size}\\> {tmp}/{size}.jpg".
                      format(
                          size=s, tmp=temp_dir, **self.getRunOpts()))
-                srun("convert {o} -resize x{size}\\> {tmp}/x{size}.jpg".format(
+                srun("convert {o} -auto-orient -resize x{size}\\> {tmp}/x{size}.jpg".format(
                     size=s, tmp=temp_dir, **self.getRunOpts()))
-                srun("convert {o} -resize {size}x\\> {tmp}/{size}x.jpg".format(
+                srun("convert {o} -auto-orient -resize {size}x\\> {tmp}/{size}x.jpg".format(
                     size=s, tmp=temp_dir, **self.getRunOpts()))
             srun("mv {td}/* {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
