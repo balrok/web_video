@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 
-import sys
 import os
+import sys
 import tempfile
-if sys.platform != 'win32':
+
+if sys.platform != "win32":
     import fcntl
 
 
@@ -27,21 +28,24 @@ class SingleInstance:
 
     def __init__(self, flavor_id=""):
         self.initialized = False
-        basename = os.path.splitext(os.path.abspath(sys.argv[0]))[0].replace(
-            "/", "-").replace(":", "").replace(
-                "\\", "-") + '-%s' % flavor_id + '.lock'
+        basename = (
+            os.path.splitext(os.path.abspath(sys.argv[0]))[0]
+            .replace("/", "-")
+            .replace(":", "")
+            .replace("\\", "-")
+            + "-%s" % flavor_id
+            + ".lock"
+        )
         # os.path.splitext(os.path.abspath(sys.modules['__main__'].__file__))[0].replace("/", "-").replace(":", "").replace("\\", "-") + '-%s' % flavor_id + '.lock'
-        self.lockfile = os.path.normpath(tempfile.gettempdir() + '/' +
-                                         basename)
+        self.lockfile = os.path.normpath(tempfile.gettempdir() + "/" + basename)
 
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             try:
                 # file already exists, we try to remove (in case previous
                 # execution was interrupted)
                 if os.path.exists(self.lockfile):
                     os.unlink(self.lockfile)
-                self.fd = os.open(self.lockfile, os.O_CREAT | os.O_EXCL |
-                                  os.O_RDWR)
+                self.fd = os.open(self.lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
             except OSError:
                 type, e, tb = sys.exc_info()
                 if e.errno == 13:
@@ -49,7 +53,7 @@ class SingleInstance:
                 print(e.errno)
                 raise
         else:  # non Windows
-            self.fp = open(self.lockfile, 'w')
+            self.fp = open(self.lockfile, "w")
             self.fp.flush()
             try:
                 fcntl.lockf(self.fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -61,8 +65,8 @@ class SingleInstance:
         if not self.initialized:
             return
         try:
-            if sys.platform == 'win32':
-                if hasattr(self, 'fd'):
+            if sys.platform == "win32":
+                if hasattr(self, "fd"):
                     os.close(self.fd)
                     os.unlink(self.lockfile)
             else:

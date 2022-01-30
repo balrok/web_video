@@ -14,18 +14,19 @@ try:
     from os import scandir
 except ImportError:
     from scandir import scandir
+
+import logging.handlers
+import os
 import sys
 import urllib.request
 from time import time
-import os
-from lib.singleton import SingleInstance
+
 from lib.filetype import BasicFile
-from zenlog import log
-from zenlog import logging
-import logging.handlers
+from lib.singleton import SingleInstance
+from zenlog import log, logging
 
 
-def main(root_dir: str, callback: str=""):
+def main(root_dir: str, callback: str = ""):
     return_code = 0
     for e in scandir(root_dir):
         if e.is_dir():
@@ -37,8 +38,7 @@ def main(root_dir: str, callback: str=""):
                 fh = BasicFile.get_instance(entry)
                 if fh:
                     is_watch_dir = True
-                    log.debug("Found a file %s with type %s", entry.name,
-                              repr(fh))
+                    log.debug("Found a file %s with type %s", entry.name, repr(fh))
                     start = time()
                     res = fh.process()
                     changed = False
@@ -48,25 +48,25 @@ def main(root_dir: str, callback: str=""):
                             log.info("updated {} - {}".format(entry.name, i))
                         if res[i] == fh.ERROR:
                             log.error(
-                                "ERROR: {} could not be processed - {}\n".
-                                format(entry.name, i))
+                                "ERROR: {} could not be processed - {}\n".format(
+                                    entry.name, i
+                                )
+                            )
                             return_code = -1
                     if time() - start > 1:
-                        log.info("For %s took: %d", entry.name,
-                                 int(time() - start))
+                        log.info("For %s took: %d", entry.name, int(time() - start))
             if is_watch_dir:
                 if BasicFile.foldername_string(e.name) != e.name:
-                    log.warning(
-                        "The Foldername is not nice for urls - fixing it")
+                    log.warning("The Foldername is not nice for urls - fixing it")
                     BasicFile.move_directory(
                         e.path,
                         os.path.join(
-                            os.path.dirname(e.path),
-                            BasicFile.foldername_string(e.name)))
+                            os.path.dirname(e.path), BasicFile.foldername_string(e.name)
+                        ),
+                    )
 
                 if time() - dirstart > 1:
-                    log.info("For dir %s took: %d", e.path,
-                             int(time() - dirstart))
+                    log.info("For dir %s took: %d", e.path, int(time() - dirstart))
 
                 if changed:
                     if len(callback) > 0:
@@ -77,8 +77,7 @@ def main(root_dir: str, callback: str=""):
                             except:
                                 log.error("Error opening this url")
                         else:
-                            log.error("callback must start with http: %s",
-                                      callback)
+                            log.error("callback must start with http: %s", callback)
     sys.exit(return_code)
 
 
@@ -87,12 +86,14 @@ def configure_logging(root_dir: str):
     hdlr = logging.handlers.RotatingFileHandler(
         os.path.join(root_dir, ".web_video.log"),
         maxBytes=1024 * 1024 * 10,
-        backupCount=5)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        backupCount=5,
+    )
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
     try:
         from logging.handlers import SysLogHandler
+
         syslog = SysLogHandler()
         syslog.setFormatter(formatter)
         logger.addHandler(syslog)
@@ -107,7 +108,7 @@ def run_it():
     global lock
     configure_logging(sys.argv[1])
     lock = SingleInstance("videotransformer")
-    #if not BasicFile.test_requirements():
+    # if not BasicFile.test_requirements():
     #    log.error("Some program requirements not met")
     #    sys.exit(-1)
     # first argument is folder which we will check

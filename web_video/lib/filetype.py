@@ -1,14 +1,15 @@
-from time import time
-import os
-from subprocess import CalledProcessError, run, PIPE, DEVNULL
 import json
-from shlex import quote
-import unicodedata
+import os
 import re
 import sys
+import unicodedata
+from shlex import quote
+from subprocess import DEVNULL, PIPE, CalledProcessError, run
 from tempfile import TemporaryDirectory
+from time import time
+from typing import Dict, List
+
 from zenlog import log
-from typing import List, Dict
 
 filetypes = []  # type: List[BasicFile]
 
@@ -30,13 +31,13 @@ def srun(*args, **kwargs):
         if time() - start > 1:
             log.info("Took %d seconds" % int(time() - start))
         if ret.returncode != 0:
-            log.error('A command returned an error code %d', ret.returncode)
+            log.error("A command returned an error code %d", ret.returncode)
             log.error(args)
             log.error(kwargs)
             return False
         return ret
     except (OSError, CalledProcessError) as e:
-        log.error('While running a command an exception occured: %s', e)
+        log.error("While running a command an exception occured: %s", e)
         log.error(args)
         log.error(kwargs)
         return False
@@ -79,15 +80,14 @@ class BasicFile(object):
         self.is_processed_folder = False
 
     def getRunOpts(self) -> Dict[str, str]:
-        name_no_ext, ext = os.path.splitext(
-            os.path.basename(self.getOrigFile()))
+        name_no_ext, ext = os.path.splitext(os.path.basename(self.getOrigFile()))
         return {
-            'o': quote(self.getOrigFile()),
-            'oe': ext.lower(),
-            'tf': quote(self.getTargetFolder()),
-            'path': self.path,
-            'name': self.name,
-            'name_no_ext': name_no_ext,
+            "o": quote(self.getOrigFile()),
+            "oe": ext.lower(),
+            "tf": quote(self.getTargetFolder()),
+            "path": self.path,
+            "name": self.name,
+            "name_no_ext": name_no_ext,
         }
 
     @staticmethod
@@ -96,23 +96,24 @@ class BasicFile(object):
         Normalizes string, converts to lowercase, removes non-alpha characters,
         and converts spaces to hyphens.
         """
-        value = unicodedata.normalize('NFKD', value).encode(
-            'ascii', 'ignore').decode("utf-8")
-        value = re.sub('[^\w\s-]', '', value).strip().lower()
-        return re.sub('[-\s]+', '_', value)
+        value = (
+            unicodedata.normalize("NFKD", value)
+            .encode("ascii", "ignore")
+            .decode("utf-8")
+        )
+        value = re.sub("[^\w\s-]", "", value).strip().lower()
+        return re.sub("[-\s]+", "_", value)
 
     def move_directory(old, new):
         srun("mv {old} {new}".format(old=quote(old), new=quote(new)))
 
     def getTargetFolder(self):
         file = os.path.join(self.path, self.name)
-        name_no_ext, ext = os.path.splitext(
-            os.path.basename(self.getOrigFile()))
+        name_no_ext, ext = os.path.splitext(os.path.basename(self.getOrigFile()))
         if os.path.isdir(file):
             return file
         else:
-            return os.path.join(self.path,
-                                BasicFile.foldername_string(name_no_ext))
+            return os.path.join(self.path, BasicFile.foldername_string(name_no_ext))
 
     def getOrigFile(self):
         if os.path.isdir(os.path.join(self.path, self.name)):
@@ -126,8 +127,7 @@ class BasicFile(object):
 
     def istype(self):
         if self.entry.stat().st_mtime + 60 > time():
-            log.debug("Modified too recently: %d",
-                      time() - self.entry.stat().st_mtime)
+            log.debug("Modified too recently: %d", time() - self.entry.stat().st_mtime)
             return False
         return True
 
@@ -147,8 +147,10 @@ class BasicFile(object):
             return self.update()
         if os.path.exists(self.getTargetFolder()):
             log.error(
-                "Cannot process {} as the target folder {} already exists".
-                format(self.name, self.getTargetFolder()))
+                "Cannot process {} as the target folder {} already exists".format(
+                    self.name, self.getTargetFolder()
+                )
+            )
             return {"orig": self.ERROR}
         log.debug("mkdir {tf}".format(**self.getRunOpts()))
         srun("mkdir {tf}".format(**self.getRunOpts()))
@@ -171,7 +173,9 @@ class ImageFile(BasicFile):
         return False
 
     def update(self):
-        ret = [["sizes", self.convert_sizes], ]
+        ret = [
+            ["sizes", self.convert_sizes],
+        ]
         return super(ImageFile, self).update(ret)
 
     def convert_sizes(self):
@@ -179,13 +183,21 @@ class ImageFile(BasicFile):
             return self.NO_CHANGE
         with TemporaryDirectory() as temp_dir:
             for s in self.sizes:
-                srun("convert {o} -auto-orient -resize {size}x{size}\\> {tmp}/{size}.jpg".
-                     format(
-                         size=s, tmp=temp_dir, **self.getRunOpts()))
-                srun("convert {o} -auto-orient -resize x{size}\\> {tmp}/x{size}.jpg".format(
-                    size=s, tmp=temp_dir, **self.getRunOpts()))
-                srun("convert {o} -auto-orient -resize {size}x\\> {tmp}/{size}x.jpg".format(
-                    size=s, tmp=temp_dir, **self.getRunOpts()))
+                srun(
+                    "convert {o} -auto-orient -resize {size}x{size}\\> {tmp}/{size}.jpg".format(
+                        size=s, tmp=temp_dir, **self.getRunOpts()
+                    )
+                )
+                srun(
+                    "convert {o} -auto-orient -resize x{size}\\> {tmp}/x{size}.jpg".format(
+                        size=s, tmp=temp_dir, **self.getRunOpts()
+                    )
+                )
+                srun(
+                    "convert {o} -auto-orient -resize {size}x\\> {tmp}/{size}x.jpg".format(
+                        size=s, tmp=temp_dir, **self.getRunOpts()
+                    )
+                )
             srun("mv {td}/* {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
@@ -223,18 +235,18 @@ class VideoFile(BasicFile):
         return super(VideoFile, self).update(ret)
 
     def convert_multi_bitrates(self):
-        if os.path.exists(
-                os.path.join(self.getTargetFolder(), "video_00500.mp4")):
+        if os.path.exists(os.path.join(self.getTargetFolder(), "video_00500.mp4")):
             return self.NO_CHANGE
         with TemporaryDirectory() as temp_dir:
             try:
-                srun("python `which mp4-dash-encode.py` -v -b 3 -o {td}/v {o}".
-                     format(
-                         td=temp_dir, **self.getRunOpts()))
+                srun(
+                    "python `which mp4-dash-encode.py` -v -b 3 -o {td}/v {o}".format(
+                        td=temp_dir, **self.getRunOpts()
+                    )
+                )
             except CalledProcessError:
                 return self.ERROR
-            srun("mv {td}/v/video_* {tf}".format(
-                td=temp_dir, **self.getRunOpts()))
+            srun("mv {td}/v/video_* {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
     def convert_screenshots(self):
@@ -243,18 +255,22 @@ class VideoFile(BasicFile):
         with TemporaryDirectory() as temp_dir:
             d = self.getJson()
             duration = int(float(d["streams"][0]["duration"]))
-            srun("ffmpeg -i {o} -vf fps={fps}/{dur} {td}/img_%d.jpg".format(
-                fps=5, dur=duration, td=temp_dir, **self.getRunOpts()))
+            srun(
+                "ffmpeg -i {o} -vf fps={fps}/{dur} {td}/img_%d.jpg".format(
+                    fps=5, dur=duration, td=temp_dir, **self.getRunOpts()
+                )
+            )
             srun("mv {td}/img_* {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
     def getJson(self):
         p = srun(
-            "ffprobe -v quiet -print_format json -show_streams {tf}/{v}".
-            format(
-                v="video_00500.mp4", **self.getRunOpts()),
+            "ffprobe -v quiet -print_format json -show_streams {tf}/{v}".format(
+                v="video_00500.mp4", **self.getRunOpts()
+            ),
             universal_newlines=True,
-            stdout=PIPE)
+            stdout=PIPE,
+        )
         return json.loads(p.stdout, strict=False)
 
     def convert_sprite(self):
@@ -263,19 +279,23 @@ class VideoFile(BasicFile):
         with TemporaryDirectory() as temp_dir:
             d = self.getJson()
             duration = int(float(d["streams"][0]["duration"]))
-            srun("ffmpeg -i {o} -vf fps={fps}/{dur} {td}/sprite_%d.jpg".format(
-                td=temp_dir, fps=10, dur=duration, **self.getRunOpts()))
+            srun(
+                "ffmpeg -i {o} -vf fps={fps}/{dur} {td}/sprite_%d.jpg".format(
+                    td=temp_dir, fps=10, dur=duration, **self.getRunOpts()
+                )
+            )
             for i in range(1, 11):
                 srun(
-                    "convert {td}/sprite_{i}.jpg -resize {size}x\\> {td}/sprite_{size}_{i}.jpg".
-                    format(
-                        i=i, size=256, td=temp_dir))
+                    "convert {td}/sprite_{i}.jpg -resize {size}x\\> {td}/sprite_{size}_{i}.jpg".format(
+                        i=i, size=256, td=temp_dir
+                    )
+                )
             srun(
-                "montage {tmp}/sprite_{size}_* -tile 10x1 -geometry 256x {tmp}/sprite.jpg".
-                format(
-                    size=256, tmp=temp_dir))
-            srun("mv {td}/sprite.jpg {tf}".format(
-                td=temp_dir, **self.getRunOpts()))
+                "montage {tmp}/sprite_{size}_* -tile 10x1 -geometry 256x {tmp}/sprite.jpg".format(
+                    size=256, tmp=temp_dir
+                )
+            )
+            srun("mv {td}/sprite.jpg {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
     def convert_webm(self):
@@ -283,29 +303,34 @@ class VideoFile(BasicFile):
             return self.NO_CHANGE
         with TemporaryDirectory() as temp_dir:
             srun(
-                "ffmpeg -i {o} -speed 1 -c:v libvpx -b:v 1M -c:a libvorbis -vf \"scale='min(600,iw)':-1\" {td}/video.webm".
-                format(
-                    td=temp_dir, **self.getRunOpts()))
-            srun("mv {td}/video.webm {tf}".format(
-                td=temp_dir, **self.getRunOpts()))
+                "ffmpeg -i {o} -speed 1 -c:v libvpx -b:v 1M -c:a libvorbis -vf \"scale='min(600,iw)':-1\" {td}/video.webm".format(
+                    td=temp_dir, **self.getRunOpts()
+                )
+            )
+            srun("mv {td}/video.webm {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
     def convert_dash(self):
         if os.path.exists(os.path.join(self.getTargetFolder(), "stream.mpd")):
             return self.NO_CHANGE
         with TemporaryDirectory() as temp_dir:
-            srun("mp4dash -o {t}/dash {tf}/video_0*.mp4".format(
-                t=temp_dir, **self.getRunOpts()))
-            srun("mv {td}/dash/* {tf}".format(
-                td=temp_dir, **self.getRunOpts()))
+            srun(
+                "mp4dash -o {t}/dash {tf}/video_0*.mp4".format(
+                    t=temp_dir, **self.getRunOpts()
+                )
+            )
+            srun("mv {td}/dash/* {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
     def convert_hls(self):
         if os.path.exists(os.path.join(self.getTargetFolder(), "master.m3u8")):
             return self.NO_CHANGE
         with TemporaryDirectory() as temp_dir:
-            srun("mp4hls -o {t}/hls {tf}/video_0*.mp4".format(
-                t=temp_dir, **self.getRunOpts()))
+            srun(
+                "mp4hls -o {t}/hls {tf}/video_0*.mp4".format(
+                    t=temp_dir, **self.getRunOpts()
+                )
+            )
             srun("mv {td}/hls/* {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
@@ -313,11 +338,11 @@ class VideoFile(BasicFile):
     def test_requirements():
         ret = True
         ret &= BasicFile.cmd_exists("python2.7")
-        ret &= BasicFile.cmd_exists("mp4dash")  #bento4
-        ret &= BasicFile.cmd_exists("mp4-dash-encode.py")  #bento4
+        ret &= BasicFile.cmd_exists("mp4dash")  # bento4
+        ret &= BasicFile.cmd_exists("mp4-dash-encode.py")  # bento4
         ffmpeg = BasicFile.cmd_exists("ffmpeg")
         ret &= ffmpeg
-        ret &= BasicFile.cmd_exists("montage")  #imagemagick
+        ret &= BasicFile.cmd_exists("montage")  # imagemagick
         if ffmpeg:
             v = srun("ffmpeg -version", stdout=PIPE)
             opts = [
@@ -328,8 +353,9 @@ class VideoFile(BasicFile):
             ]
             opts_not_exist = [o.decode("utf-8") for o in opts if o not in v.stdout]
             if len(opts_not_exist) > 0:
-                log.error("ffmpeg not compiled with {}".format(" ".join(
-                    opts_not_exist)))
+                log.error(
+                    "ffmpeg not compiled with {}".format(" ".join(opts_not_exist))
+                )
                 ret = False
         return ret
 
