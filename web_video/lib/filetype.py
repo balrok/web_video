@@ -240,7 +240,7 @@ class VideoFile(BasicFile):
         with TemporaryDirectory() as temp_dir:
             try:
                 srun(
-                    "python `which mp4-dash-encode.py` -v -b 3 -o {td}/v {o}".format(
+                    "mp4-dash-encode.py --verbose --bitrates 3 --audio-codec aac --output-dir {td}/v {o}".format(
                         td=temp_dir, **self.getRunOpts()
                     )
                 )
@@ -334,10 +334,11 @@ class VideoFile(BasicFile):
             srun("mv {td}/hls/* {tf}".format(td=temp_dir, **self.getRunOpts()))
         return self.UPDATED
 
+    # TODO is this working?
     @staticmethod
     def test_requirements():
         ret = True
-        ret &= BasicFile.cmd_exists("python2.7")
+        # ret &= BasicFile.cmd_exists("python2.7")
         ret &= BasicFile.cmd_exists("mp4dash")  # bento4
         ret &= BasicFile.cmd_exists("mp4-dash-encode.py")  # bento4
         ffmpeg = BasicFile.cmd_exists("ffmpeg")

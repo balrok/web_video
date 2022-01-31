@@ -28,8 +28,11 @@ from zenlog import log, logging
 
 def main(root_dir: str, callback: str = ""):
     return_code = 0
+    log.info("Checking %s", root_dir)
+    dirs = 0
     for e in scandir(root_dir):
         if e.is_dir():
+            dirs += 1
             log.debug("checking %s", e.name)
             changed = False
             dirstart = time()
@@ -78,6 +81,7 @@ def main(root_dir: str, callback: str = ""):
                                 log.error("Error opening this url")
                         else:
                             log.error("callback must start with http: %s", callback)
+    log.info("Looked at %d dirs", dirs)
     sys.exit(return_code)
 
 
