@@ -5,17 +5,16 @@ main() {
 	local callback="$2"
 	while true; do
 		# run our tool first, so a container-restart would trigger it
-		echo "Running web_video"
-		date
+		echo "$(date) Running web_video"
 		./web_video/run.py "$dir" "$callback"
-		echo "Finished web_video $(date)"
+		echo "$(date) Finished web_video"
 
-		# first big inotifywait will detect, that an upload was started
+		# first inotifywait will detect, that an upload was started
 		# but we then need to wait until everything is finished
 		inotifywait -e close_write --recursive "$dir"
 		while true; do
-			# here we wait for the upload to finish
-			if inotifywait --recursive --timeout 3600 "$dir"; then
+			# here we wait for the upload to finish - if we go in a timeout, it means nothing happened for some time
+			if inotifywait --recursive --timeout 360 "$dir"; then
 				echo "Got another file event - still waiting for the upload finished"
 			else
 				echo "Didn't get a new file event for some time - upload probably finished"
