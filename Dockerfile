@@ -4,12 +4,21 @@ RUN apk add --no-cache curl && \
 	unzip bento4.zip && \
 	mv Bento4-SDK-1-6-0-639.x86_64-unknown-linux/ bento4
 
-FROM python:3.9
 
+FROM python:3.9
 WORKDIR /
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
-COPY --from=download bento4/ bento4
+ENV DIR=/watchdir
+ENV CALLBACK=
 ENV PATH=${PATH}:/bento4/bin:/bento4/utils
+
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends ffmpeg inotify-tools && \
+	rm -rf /var/lib/apt/lists/*
+
+COPY --from=download bento4/ bento4
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY ./web_video ./web_video
+COPY docker/entrypoint.sh /
+
+ENTRYPOINT [ "/entrypoint.sh" ]
